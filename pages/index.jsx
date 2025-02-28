@@ -12,8 +12,7 @@ const DUMMY_MEETUPS = [
   {
     id: "m2",
     title: "Second Meetup",
-    image:
-      "https://bogota.gov.co/sites/default/files/2024-12/8-1.jpg",
+    image: "https://bogota.gov.co/sites/default/files/2024-12/8-1.jpg",
     address: "Zipaquirá's Park",
     description: "This is a second meetup!",
   },
