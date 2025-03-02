@@ -3,7 +3,7 @@ import { MongoClient } from "mongodb";
 // /api/new-meetup
 // POST /api/new-meetup
 
-export async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method === "POST") {
     const data = req.body;
 
