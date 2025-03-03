@@ -1,40 +1,30 @@
 import MeetupDetail from "../../components/meetups/MeetupDetail";
+import { mongoConnection } from "../api/mongo";
+import { ObjectId } from "mongodb";
 
-/* const M1 = {
-  id: "m1",
-  title: "First Meetup",
-  image:
-    "https://www.las2orillas.co/wp-content/uploads/2024/09/San-francisco-3.jpg",
-  address: "San Francisco's Park",
-  description: "This is a first meetup!",
-}; */
-
-export default function MeetupDetailPage(props) {
+export default function MeetupDetailPage({ meetupData }) {
   return (
     <MeetupDetail
-      title={props.meetupData.title}
-      image={props.meetupData.image}
-      address={props.meetupData.address}
-      description={props.meetupData.description}
+      title={meetupData.title}
+      image={meetupData.image}
+      address={meetupData.address}
+      description={meetupData.description}
     />
   );
 }
 
 export async function getStaticPaths() {
+  const { meetupsCollection, client } = await mongoConnection();
+
+  const meetups = await meetupsCollection.find({}, { _id: 1 }).toArray();
+
+  client.close();
+
   return {
-    fallback: true,
-    paths: [
-      {
-        params: {
-          meetupId: "m1",
-        },
-      },
-      {
-        params: {
-          meetupId: "m2",
-        },
-      },
-    ],
+    fallback: false,
+    paths: meetups.map((meetup) => ({
+      params: { meetupId: meetup._id.toString() },
+    })),
   };
 }
 
@@ -43,17 +33,22 @@ export async function getStaticProps({ params }) {
 
   const meetupId = params.meetupId;
 
-  console.log(meetupId);
+  const { meetupsCollection, client } = await mongoConnection();
+
+  const selectedMeetup = await meetupsCollection.findOne({
+    _id: new ObjectId(meetupId),
+  });
+
+  client.close();
 
   return {
     props: {
       meetupData: {
-        id: "m1",
-        title: "First Meetup",
-        image:
-          "https://www.las2orillas.co/wp-content/uploads/2024/09/San-francisco-3.jpg",
-        address: "San Francisco's Park",
-        description: "This is a first meetup!",
+        id: selectedMeetup._id.toString(),
+        title: selectedMeetup.title,
+        address: selectedMeetup.address,
+        image: selectedMeetup.image,
+        description: selectedMeetup.description,
       },
     },
   };
