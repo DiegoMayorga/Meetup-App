@@ -1,3 +1,7 @@
+// esta importacion NextJS detecta si no se usa en la funcion componente y no incluye el paquete en
+// su cliente.
+import { MongoClient } from "mongodb";
+
 import MeetupList from "../components/meetups/MeetupList";
 
 const DUMMY_MEETUPS = [
@@ -41,10 +45,26 @@ export default function HomePage(props) {
 } */
 
 export async function getStaticProps() {
+  const client = await MongoClient.connect(
+    "mongodb+srv://diegomayorga:x8YxwinFIMQzzTEF@cluster0.qq16c.mongodb.net/meetups?retryWrites=true&w=majority&appName=Cluster0"
+  );
+  const db = client.db();
+
+  const meetupsCollection = db.collection("meetups");
+
+  const meetups = await meetupsCollection.find().toArray();
+
+  client.close();
+
   return {
     props: {
-      meetups: DUMMY_MEETUPS,
+      meetups: meetups.map((meetup) => ({
+        title: meetup.title,
+        address: meetup.address,
+        image: meetup.image,
+        id: meetup._id.toString(),
+      })),
     },
-    revalidate: 10
+    revalidate: 10,
   };
 }
